@@ -1,6 +1,7 @@
 import asyncpg
 
 
+
 class TestSenderList:
     def __init__(self, connector: asyncpg.pool.Pool):
         self.connector = connector
