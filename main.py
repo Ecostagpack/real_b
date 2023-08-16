@@ -6,7 +6,7 @@ import contextlib
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, CommandStart
 
-from core.handlers.basic import get_start
+from core.handlers.basic import get_start, pokaz_znyzky
 from core.middlewares.dbmiddleware import DbSession
 from core.settings import settings
 from core.utils.commands import set_commands
@@ -64,6 +64,7 @@ async def start():
     # dp.update.middleware.register(SchedulerMiddleware(scheduler))
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
+    dp.message.register(pokaz_znyzky, F.text == '/znyzky')
     dp.message.register(Inter_skidki_women, F.text == 'skidki_women')
     dp.message.register(Inter_skidki_men, F.text == 'skidki_men')
     dp.message.register(Inter_skidki_children, F.text == 'skidki_children')
