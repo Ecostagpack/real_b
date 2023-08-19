@@ -5,7 +5,9 @@ import contextlib
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, CommandStart
+from aiogram.fsm.context import FSMContext
 
+# from core.utils.sender_list_intertop import send_message_to_clients
 from core.handlers.basic import get_start, pokaz_znyzky
 from core.middlewares.dbmiddleware import DbSession
 from core.settings import settings
@@ -17,7 +19,7 @@ from core.utils.dbconnect import Request
 from core.handlers import sender_intertop, apsched, sender
 from core.middlewares.apschedulermiddleware import SchedulerMiddleware
 from core.utils.sender_list import SenderList
-from core.utils.sender_list_intertop import SenderListIntertop
+# from core.utils.sender_list_intertop import SenderListIntertop
 from core.utils.sender_state import Steps
 from datetime import datetime, timedelta
 
@@ -52,39 +54,37 @@ async def start():
     pool_connect = await create_pool()
     dp = Dispatcher()
     # senderlist = SenderList
-    # scheduler = AsyncIOScheduler(timezone='Europe/Kyiv')
-    # scheduler.add_job(apsched.send_message_cron, trigger='date', run_date=datetime.now() + timedelta(seconds=10),
-    #                   kwargs={'bot': bot, name_table, senderlistintertop})
+    scheduler = AsyncIOScheduler(timezone='Europe/Kyiv')
+    scheduler.add_job(apsched.send_message_interval, trigger='date', run_date=datetime.now() + timedelta(seconds=10),
+                      kwargs={'bot': bot})
     # scheduler.add_job(apsched.send_message_cron, trigger='cron', hour='8',
     #                   minute='15', start_date=datetime.now(), kwargs={'bot': bot, 'senderlistintertop': SenderListIntertop})
     # scheduler.add_job(apsched.get_ids_cron, trigger='cron', hour='8', minute='11', start_date=datetime.now(),
     #                   kwargs={'bot': bot, 'message': Message, 'request': Request})
-    # scheduler.start()
+    scheduler.start()
     dp.update.middleware.register(DbSession(pool_connect))
     # dp.update.middleware.register(SchedulerMiddleware(scheduler))
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
+    # dp.callback_query.register(send_message_to_clients, F.data.in_(['rozislaty', 'ne_rozsylaty']))
     dp.message.register(pokaz_znyzky, F.text == '/znyzky')
     dp.message.register(Inter_skidki_women, F.text == 'skidki_women')
     dp.message.register(Inter_skidki_men, F.text == 'skidki_men')
     dp.message.register(Inter_skidki_children, F.text == 'skidki_children')
     dp.message.register(get_start, F.text == '/start')
-    # dp.message.register(get_hellow, F.text == 'привет')
-    # dp.message.register(get_photo, F.photo)
-    # dp.message.register(get_start, Command(commands=['start', 'run']))
     dp.message.register(sender.get_sender, Command(commands='sender', magic=F.args),
                                           F.chat.id == settings.bots.admin_id)
-
+    #
     dp.message.register(sender.get_message, Steps.get_message)
     dp.callback_query.register(sender.q_button, Steps.q_button)
     dp.message.register(sender.get_text_button, Steps.get_text_button, F.chat.id == settings.bots.admin_id)
     dp.message.register(sender.get_url_button, Steps.get_url_button, F.chat.id == settings.bots.admin_id, F.text)
     dp.callback_query.register(sender.sender_decide, F.data.in_(['confirm_sender', 'cansel_sender']))
     sender_list = SenderList(bot, pool_connect)
-    sender_list_intertop = SenderListIntertop(bot, pool_connect)
+    # sender_list_intertop = SenderListIntertop(bot, pool_connect)
     try:
-        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types(), senderlist=sender_list, senderlistintertop=sender_list_intertop)
-        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types(), senderlistintertop=sender_list_intertop)
+        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types(), senderlist=sender_list)
+        # await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types(), senderlistintertop=sender_list_intertop)
     except Exception as ex:
         logging.error(f"[!!! Exeption] - {ex}", exc_info=True)
     finally:

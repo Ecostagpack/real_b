@@ -8,7 +8,7 @@ from core.utils.sender_list import SenderList
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 # from core.handlers.apsched import send_message_middleware
 from datetime import datetime, timedelta
-from core.utils.sender_list_intertop import SenderListIntertop
+# from core.utils.sender_list_intertop import SenderListIntertop
 
 
 # async def Inter_sk_wo(message: Message, bot: Bot, apscheduler: AsyncIOScheduler, sendlistint: SenderListIntertop):
@@ -29,9 +29,9 @@ async def Inter_skidki_women(message: Message):
 
     with open('datas/data_card.json', 'r', encoding='utf-8') as file:
         data_card = json.load(file)
-        count = 0
+        count_women = 0
         for card in data_card:
-            count += 1
+            count_women += 1
             item_women = f"{card['link']},\n'Стара_ціна':  {card['Стара_ціна']},\n" \
                    f"<b>'Акційна_ціна':  {card['Акційна_ціна']},\n</b><b>'Знижка':  {card['Знижка']}</b>"
             # return item_women
@@ -43,9 +43,9 @@ async def Inter_skidki_men(message: Message):
 
     with open('datas/data_card_men.json', 'r', encoding='utf-8') as file:
         data_card = json.load(file)
-        count = 0
+        count_men = 0
         for card in data_card:
-            count += 1
+            count_men += 1
             item_men = f"{card['link']},\n'Стара_ціна':  {card['Стара_ціна']},\n" \
                    f"<b>'Акційна_ціна':  {card['Акційна_ціна']},\n</b><b>'Знижка':  {card['Знижка']}</b>"
 
@@ -57,9 +57,9 @@ async def Inter_skidki_children(message: Message):
 
     with open('datas/data_card_children.json', 'r', encoding='utf-8') as file:
         data_card = json.load(file)
-        count = 0
+        count_children = 0
         for card in data_card:
-            count += 1
+            count_children += 1
             item_children = f"{card['link']},\n'Стара_ціна':  {card['Стара_ціна']},\n" \
                    f"<b>'Акційна_ціна':  {card['Акційна_ціна']},\n</b><b>'Знижка':  {card['Знижка']}</b>"
 

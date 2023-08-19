@@ -1,88 +1,84 @@
-# import asyncio
-# from datetime import datetime
-# from sched import scheduler
-#
-# from aiogram import Bot
-# from aiogram.types import Message
-# import asyncpg
-# from aiogram.exceptions import TelegramRetryAfter
-# from aiogram.utils.keyboard import InlineKeyboardBuilder
-# from asyncpg import Record
-# from typing import List
-# from aiogram.types import InlineKeyboardMarkup
-#
-#
-# class SenderListIntertop:
-#     def __init__(self, bot: Bot, connector: asyncpg.pool.Pool):
-#         self.bot = bot
-#         self.connector = connector
-#
-#
-#     async def get_users(self, name_table):
-#         async with self.connector.acquire() as connect:
-#             name_table = 'datausers'
-#             query = f"SELECT user_id FROM {name_table}"
-#             results_query: List[Record] = await connect.fetch(query)
-#             return [result.get('user_id') for result in results_query]
-#
-#
-#     async def send_message(self, user_id: int):
-#         return await self.send_message(user_id)
-#
-#
-#     async def broadcaster_intertop(self, name_table: str):
-#         users_ids = await self.get_users(name_table)
-#
-#         count = 0
-#         try:
-#             for user_id in users_ids:
-#                 if await self.send_message(int(user_id)):
-#                     count += 1
-#                 await asyncio.sleep(.05)
-#         finally:
-#             print(f"Повідомлення розіслано {count} користувачам")
-#             return count
-
 import asyncio
-from datetime import datetime
-from sched import scheduler
-
 from aiogram import Bot
-from aiogram.types import Message
 import asyncpg
 from aiogram.exceptions import TelegramRetryAfter
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from asyncpg import Record
 from typing import List
-from aiogram.types import InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
-class SenderListIntertop:
+class SenderList:
     def __init__(self, bot: Bot, connector: asyncpg.pool.Pool):
         self.bot = bot
         self.connector = connector
 
+    async def get_keyboard(self, text_button, url_button):
+        keyboard_builder = InlineKeyboardBuilder()
+        keyboard_builder.button(text=text_button, url_button=url_button)
+        keyboard_builder.adjust(1)
+        return keyboard_builder.as_markup()
 
-    async def get_users(self):
+    async def get_users(self, name_camp):
         async with self.connector.acquire() as connect:
-            # query = f"SELECT user_id FROM datausers WHERE status = 'waiting'"
-            query = f"SELECT user_id FROM users_for_sender WHERE status = 'waiting' "
-
+            query = f"SELECT user_id FROM {name_camp} WHERE status = 'waiting' "
             results_query: List[Record] = await connect.fetch(query)
             return [result.get('user_id') for result in results_query]
 
+    async def update_status(self, table_name, user_id, status, description):
+        async with self.connector.acquire() as connect:
+            query = f"UPDATE {table_name} SET status='{status}',  description='{description}' WHERE user_id={user_id}"
+            await connect.execute(query)
 
-    async def send_message(self, user_id: int):
-        return await self.send_message(user_id)
+    async def send_message_to_clients(self, user_id: int, from_chat_id: int):
+        await self.bot.send_message(user_id, 'привіт новий парсинг виконано, '
+                                        'знайдено стільки то нових товарів, розсилку починати?',
+                               reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                                   [
+                                       InlineKeyboardButton(
+                                           text='confirm',
+                                           callback_data='rozislaty'
 
+                                       )
+                                   ],
+                                   [
+                                       InlineKeyboardButton(
+                                           text='Скасувати',
+                                           callback_data='ne_rozsylaty'
 
-    async def broadcaster_intertop(self):
-        users_ids = await self.get_users()
+                                       )
+                                   ]
+                               ]))
+            # return await self.send_message(user_id, chat_id)
+
+    # async def send_message(self, user_id: int, from_chat_id: int, message_id: int, name_camp: str,
+    #                        keyboard: InlineKeyboardMarkup = None):
+    #     try:
+    #         await self.bot.copy_message(user_id, from_chat_id, message_id, reply_markup=keyboard)
+    #     except TelegramRetryAfter as e:
+    #         await asyncio.sleep(e.retry_after)
+    #         return await self.send_message(user_id, from_chat_id, message_id, name_camp, keyboard)
+    #     except Exception as e:
+    #         await self.update_status(name_camp, user_id, 'unsuccessful', f'{e}')
+    #     else:
+    #         await self.update_status(name_camp, user_id, 'success', 'no errors')
+    #         return True
+    #
+    #     return False
+
+    async def broadcaster(self, name_camp: str, from_chat_id: int, message_id: int, text_button: str = None,
+                          url_button: str = None):
+        keyboard = None
+
+        if text_button and url_button:
+            keyboard = await self.get_keyboard(text_button, url_button)
+
+        users_ids = await self.get_users(name_camp)
 
         count = 0
         try:
             for user_id in users_ids:
-                if await self.send_message(int(user_id)):
+                if await self.send_message_to_clients(int(user_id), from_chat_id):
                     count += 1
                 await asyncio.sleep(.05)
         finally:

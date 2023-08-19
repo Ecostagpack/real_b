@@ -107,13 +107,21 @@ from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKe
 from aiogram import Bot
 from aiogram.filters import CommandObject
 from aiogram.fsm.context import FSMContext
-
+from core.keyboards.inline_sender import get_confirm_button_keyboard
 from core.utils.dbconnect import Request
 from core.utils.sender_list import SenderList
 from core.utils.sender_state import Steps
-from core.keyboards.inline_sender import get_confirm_button_keyboard
 
 
+
+# async def get_sender(message: Message, command: CommandObject, state: FSMContext):
+#     if not command.args:
+#         await message.answer(f"Для створення кампаніі для розсилки введи команду /sender і текст для розсилки")
+#         return
+#     await message.answer(f"Починаємо розсилку. Ім'я кампаніі {command.args}\r\n\r\n"
+#                          f"Відправ мені контент, який буде вікористано як рекламне повідомлення")
+#     await state.update_data(name_camp=command.args)
+#     await state.set_state(Steps.get_message)
 async def get_sender(message: Message, command: CommandObject, state: FSMContext):
     if not command.args:
         await message.answer(f"Для створення кампаніі для розсилки введи команду /sender і текст для розсилки")
@@ -122,7 +130,6 @@ async def get_sender(message: Message, command: CommandObject, state: FSMContext
                          f"Відправ мені контент, який буде вікористано як рекламне повідомлення")
     await state.update_data(name_camp=command.args)
     await state.set_state(Steps.get_message)
-
 
 async def get_message(message: Message, state: FSMContext):
     await message.answer(f"Ок, я запам'ятав повідомлення для розсилки\r\n\r\n"
@@ -140,7 +147,7 @@ async def q_button(call: CallbackQuery, bot: Bot, state: FSMContext):
         message_id = int(data.get('message_id'))
         chat_id = int(data.get('chat_id'))
         await confirm(call.message, bot, message_id, chat_id)
-        await state.set_state(Steps.get_url_button)
+        await state.set_state(Steps.get_text_button)
 
     await call.answer()
 
@@ -166,7 +173,7 @@ async def get_url_button(message: Message, bot: Bot, state: FSMContext):
 
 async def confirm(message: Message, bot: Bot, message_id: int, chat_id: int, reply_markup: InlineKeyboardMarkup = None):
     await bot.copy_message(chat_id, chat_id, message_id, reply_markup=reply_markup)
-    await message.answer(f"Ось повідомлення, яке буде розіслане. Підтверди будьласка",
+    await message.answer(f"Ось повідомлення, яке буде розіслане. Підтверди будь ласка",
                          reply_markup=InlineKeyboardMarkup(inline_keyboard=[
                              [
                                  InlineKeyboardButton(

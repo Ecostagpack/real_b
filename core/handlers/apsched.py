@@ -1,14 +1,78 @@
 from aiogram import Bot
 import json
+
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from core.keyboards.reply import get_reply_keyboard
 import psycopg_pool
-from core.utils.sender_list_intertop import SenderListIntertop
+# from core.utils.sender_list_intertop import SenderListIntertop
 from core.utils.dbconnect import Request
+from core.keyboards.inline_sender import dobavlyaty_button_keyboard
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+
+from core.utils.sender_state import Steps_Intertop
 
 
-# async def send_message_interval(bot: Bot):
-# await bot.send_message(user_id, 'привіт через інтервал')
+async def send_message_interval(bot: Bot):
+    with open('datas/data_card.json', 'r', encoding='utf-8') as file:
+        data_card = json.load(file)
+        count_women = 0
+        for card in data_card:
+
+            item_women = f"{card['link']},\n'Стара_ціна':  {card['Стара_ціна']},\n" \
+                   f"<b>'Акційна_ціна':  {card['Акційна_ціна']},\n</b><b>'Знижка':  {card['Знижка']}</b>"
+            count_women += 1
+
+            # return item_women
+    await bot.send_message(1498055556,
+                    f'привіт. новий парсинг виконано, знайдено {count_women} нових товарів,'
+                    f' розсилку починати?',
+                       reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                         [
+                             InlineKeyboardButton(
+                                 text='/sender',
+                                 callback_data='sender'
+
+                             )
+                         ],
+                         [
+                             InlineKeyboardButton(
+                                 text='Скасувати',
+                                 callback_data='cansel_sender'
+
+                             )
+                         ]
+                     ]))
+    #     with open('datas/data_card.json', 'r', encoding='utf-8') as file:
+    #         data_card = json.load(file)
+    #         count_women = 0
+    #         for card in data_card:
+    #             count_women += 1
+    #             # item_women = f"{card['link']},\n'Стара_ціна':  {card['Стара_ціна']},\n" \
+    #             #              f"<b>'Акційна_ціна':  {card['Акційна_ціна']},\n</b><b>'Знижка':  {card['Знижка']}</b>"
+    #
+    #
+    #     with open('datas\data_card_men.json', 'r', encoding=' utf-8') as file:
+    #         data_card = json.load(file)
+    #         count_men = 0
+    #         for card in data_card:
+    #             count_men += 1
+    #
+    #     with open('datas\data_card_children.json', 'r', encoding=' utf-8') as file:
+    #         data_card = json.load(file)
+    #         count_children = 0
+    #         for card in data_card:
+    #             count_children += 1
+    #
+    #     await bot.send_message(1498055556, f"Привіт. з'явилося {count_women} одиниць жіночого взуття, {count_men} одиниць\r\n"
+    #                                        f" чоловічого взуття, {count_children} одиниць дитячого взуття зі знижками.\r\n ")
+
+
+
+# async def create_message_for_clients(message: Message, state: FSMContext):
+#     await state.update_data(message_id=message.message_id, chat_id=message.from_user.id)
+
+
 # async def send_message_free(bot: Bot, senderlistintertop: SenderListIntertop):
 #     users_ids = await senderlistintertop.get_users(self=senderlistintertop)
 #     for user_id in users_ids:

@@ -36,7 +36,7 @@ class SenderList:
             await self.bot.copy_message(user_id, from_chat_id, message_id, reply_markup=keyboard)
         except TelegramRetryAfter as e:
             await asyncio.sleep(e.retry_after)
-            return await self.send_message(user_id, from_chat_id, message_id, name_camp, keyboard)
+            # return await self.send_message(user_id, from_chat_id, message_id, name_camp, keyboard)
         except Exception as e:
             await self.update_status(name_camp, user_id, 'unsuccessful', f'{e}')
         else:
