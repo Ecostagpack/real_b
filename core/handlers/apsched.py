@@ -1,5 +1,6 @@
 from aiogram import Bot
 import json
+import datetime
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
@@ -14,6 +15,7 @@ from core.utils.sender_state import Steps_Intertop
 
 
 async def send_message_interval(bot: Bot):
+    today = datetime.date.today()
     with open('datas/data_card.json', 'r', encoding='utf-8') as file:
         data_card = json.load(file)
         count_women = 0
@@ -25,24 +27,11 @@ async def send_message_interval(bot: Bot):
 
             # return item_women
     await bot.send_message(1498055556,
-                    f'привіт. новий парсинг виконано, знайдено {count_women} нових товарів,'
-                    f' розсилку починати?',
-                       reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-                         [
-                             InlineKeyboardButton(
-                                 text='/sender',
-                                 callback_data='sender'
+                    f"{today}\nПривіт.\nЗнайдено нові знижки на взуття в иережі  Інтертоп.\n"
+                    f" {count_women} нових товарів\n\nЩоб переглянути, натисни кнопки intertop")
+    await bot.send_message(1498055556,
+                           f"/sender intertop")
 
-                             )
-                         ],
-                         [
-                             InlineKeyboardButton(
-                                 text='Скасувати',
-                                 callback_data='cansel_sender'
-
-                             )
-                         ]
-                     ]))
     #     with open('datas/data_card.json', 'r', encoding='utf-8') as file:
     #         data_card = json.load(file)
     #         count_women = 0
