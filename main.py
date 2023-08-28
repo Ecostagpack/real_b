@@ -57,6 +57,8 @@ async def start():
     scheduler = AsyncIOScheduler(timezone='Europe/Kyiv')
     scheduler.add_job(apsched.send_message_interval, trigger='date', run_date=datetime.now() + timedelta(seconds=10),
                       kwargs={'bot': bot})
+    scheduler.add_job(apsched.do_scrapping, trigger='date', run_date=datetime.now() + timedelta(seconds=15),
+                      kwargs={'bot': bot})
     # scheduler.add_job(apsched.send_message_cron, trigger='cron', hour='8',
     #                   minute='15', start_date=datetime.now(), kwargs={'bot': bot, 'senderlistintertop': SenderListIntertop})
     # scheduler.add_job(apsched.get_ids_cron, trigger='cron', hour='8', minute='11', start_date=datetime.now(),

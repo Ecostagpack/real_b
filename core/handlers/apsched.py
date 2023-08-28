@@ -9,10 +9,16 @@ import psycopg_pool
 # from core.utils.sender_list_intertop import SenderListIntertop
 from core.utils.dbconnect import Request
 from core.keyboards.inline_sender import dobavlyaty_button_keyboard
+from core.handlers import parser_intertop
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
 from core.utils.sender_state import Steps_Intertop
 
+
+async def do_scrapping(bot: Bot):
+    time_now = datetime.datetime.now()
+    await parser_intertop.get_card_link_gather()
+    await bot.send_message(1498055556, "Парсинг розпочато")
 
 async def send_message_interval(bot: Bot):
     today = datetime.date.today()
